@@ -25,7 +25,7 @@ public class StatsController {
     }
 
     @GetMapping("/stats")
-    @ResponseStatus
+    @ResponseStatus(HttpStatus.OK)
     public List<StatsResponse> getStats(
             @RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime start,
             @RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime end,
