@@ -28,4 +28,16 @@ public class Stats {
     String ip;
     @Column(name = "created_at", nullable = false)
     LocalDateTime timestamp;
+
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) return true;
+        if (!(o instanceof Stats)) return false;
+        return id != null && id.equals(((Stats) o).getId());
+    }
+
+    @Override
+    public int hashCode() {
+        return getClass().hashCode();
+    }
 }
