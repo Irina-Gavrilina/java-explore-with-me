@@ -26,11 +26,10 @@ public class StatsController {
 
     @GetMapping("/stats")
     @ResponseStatus(HttpStatus.OK)
-    public List<StatsResponse> getStats(
-            @RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime start,
-            @RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime end,
-            @RequestParam(required = false) List<String> uris,
-            @RequestParam(defaultValue = "false") Boolean unique) {
+    public List<StatsResponse> getStats(@RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime start,
+                                        @RequestParam @DateTimeFormat(pattern = DATE_FORMAT) LocalDateTime end,
+                                        @RequestParam(required = false) List<String> uris,
+                                        @RequestParam(defaultValue = "false") Boolean unique) {
         log.info("Поступил запрос GET на получение статистики по посещениям: start={}, end={}, uris={}, unique={}",
                 start, end, uris, unique);
         return statService.getStats(start, end, uris, unique);
