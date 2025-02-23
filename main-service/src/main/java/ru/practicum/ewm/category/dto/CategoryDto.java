@@ -1,4 +1,4 @@
-package ru.practicum;
+package ru.practicum.ewm.category.dto;
 
 import lombok.*;
 import lombok.experimental.FieldDefaults;
@@ -10,19 +10,16 @@ import lombok.experimental.FieldDefaults;
 @NoArgsConstructor
 @AllArgsConstructor
 @FieldDefaults(level = AccessLevel.PRIVATE)
-public class HitResponse {
+public class CategoryDto {
 
     Long id;
-    String app;
-    String uri;
-    String ip;
-    String timestamp;
+    String name;
 
     @Override
     public boolean equals(Object o) {
         if (this == o) return true;
-        if (!(o instanceof HitResponse)) return false;
-        return id != null && id.equals(((HitResponse) o).getId());
+        if (!(o instanceof CategoryDto)) return false;
+        return id != null && id.equals(((CategoryDto) o).getId());
     }
 
     @Override

@@ -11,6 +11,7 @@ services:
       - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsdb
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
 
   stats-db:
     image: postgres:16.1
@@ -38,10 +39,11 @@ services:
     depends_on:
       - ewm-db
     environment:
+      - STATS_SERVER_URI=http://stats-server:9090
       - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmdb
       - SPRING_DATASOURCE_USERNAME=dbuser
       - SPRING_DATASOURCE_PASSWORD=12345
-      - STATS_SERVER_URI=http://stats-server:9090
+      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
 
   ewm-db:
     image: postgres:16.1
@@ -61,3 +63,71 @@ services:
       timeout: 5s
       interval: 5s
       retries: 10
+
+#services:
+#  stats-server:
+#    ports:
+#      - "9090:9090"
+#    build: stats-service/stats-server
+#    image: stats-server-image
+#    container_name: stats-server-container
+#    depends_on:
+#      - stats-db
+#    environment:
+#      - STATS_SERVER_URI=http://stats-server:9090
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://stats-db:5432/statsdb
+#      - SPRING_DATASOURCE_USERNAME=dbuser
+#      - SPRING_DATASOURCE_PASSWORD=12345
+#      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+#
+#  stats-db:
+#    image: postgres:16.1
+#    ports:
+#      - "5432:5432"
+#    volumes:
+#      - ./volumes/stats-postgres:/var/lib/postgresql/data/
+#    container_name: stats-db
+#    environment:
+#      - POSTGRES_DB=statsdb
+#      - POSTGRES_USER=dbuser
+#      - POSTGRES_PASSWORD=12345
+#    healthcheck:
+#      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+#      timeout: 5s
+#      interval: 5s
+#      retries: 10
+#
+#  ewm-service:
+#    ports:
+#      - "8080:8080"
+#    build: main-service
+#    image: main-service-image
+#    container_name: main-service-container
+#    depends_on:
+#      - ewm-db
+#      - stats-server
+#    environment:
+#      - STATS_SERVER_URI=http://stats-server:9090
+#      - SPRING_DATASOURCE_URL=jdbc:postgresql://ewm-db:5432/ewmdb
+#      - SPRING_DATASOURCE_USERNAME=dbuser
+#      - SPRING_DATASOURCE_PASSWORD=12345
+#      - SPRING_DRIVER_CLASS_NAME=org.postgresql.Driver
+#
+#  ewm-db:
+#    image: postgres:16.1
+#    ports:
+#      - "5433:5432"
+#    volumes:
+#      - ./volumes/ewm-postgres:/var/lib/postgresql/data/
+#    container_name: ewmdb
+#    depends_on:
+#      - stats-server
+#    environment:
+#      - POSTGRES_DB=ewmdb
+#      - POSTGRES_USER=dbuser
+#      - POSTGRES_PASSWORD=12345
+#    healthcheck:
+#      test: pg_isready -q -d $$POSTGRES_DB -U $$POSTGRES_USER
+#      timeout: 5s
+#      interval: 5s
+#      retries: 10
