@@ -56,10 +56,10 @@ public class CompilationServiceImpl implements CompilationService {
             Set<Event> events = new HashSet<>(eventRepository.findAllById(request.getEvents()));
             compilation.setEvents(events);
         }
-        if(request.hasPinned()) {
+        if (request.hasPinned()) {
             compilation.setPinned(request.getPinned());
         }
-        if(request.hasTitle()) {
+        if (request.hasTitle()) {
             compilation.setTitle(request.getTitle());
         }
         return CompilationMapper.toCompilationDto(compilationRepository.save(compilation));

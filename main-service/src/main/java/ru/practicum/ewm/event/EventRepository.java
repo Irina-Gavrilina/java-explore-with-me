@@ -112,7 +112,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
            AND (:onlyAvailable = FALSE OR e.participantLimit > e.confirmedRequests)
            AND e.eventState = 'PUBLISHED'
            """)
-    List<Event> findAllEventsForPublicByParamsWithoutDate (@Param("text") String text,
+    List<Event> findAllEventsForPublicByParamsWithoutDate(@Param("text") String text,
                                                            @Param("categories") List<Integer> categories,
                                                            @Param("paid") Boolean paid,
                                                            @Param("now") LocalDateTime now,
