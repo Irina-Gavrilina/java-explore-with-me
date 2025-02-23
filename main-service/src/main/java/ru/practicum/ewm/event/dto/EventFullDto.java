@@ -22,7 +22,7 @@ public class EventFullDto {
     Long id;
     String annotation;
     CategoryDto category;
-    Long confirmedRequests;
+    Long confirmedRequests = 0L;
     @JsonFormat(pattern = DATE_FORMAT)
     LocalDateTime createdOn;
     String description;
