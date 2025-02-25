@@ -5,7 +5,7 @@ import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
-import ru.practicum.ewm.location.Location;
+import ru.practicum.ewm.location.dto.LocationDto;
 import java.time.LocalDateTime;
 import static ru.practicum.client.constants.Constants.DATE_FORMAT;
 
@@ -30,9 +30,8 @@ public class NewEventDto {
     @Future
     @JsonFormat(pattern = DATE_FORMAT)
     LocalDateTime eventDate;
-    @NotNull
     @Valid
-    Location location;
+    LocationDto location;
     Boolean paid = false;
     @PositiveOrZero
     Integer participantLimit = 0;

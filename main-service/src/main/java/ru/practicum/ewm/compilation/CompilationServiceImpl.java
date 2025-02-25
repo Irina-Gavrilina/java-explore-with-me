@@ -46,8 +46,7 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public CompilationDto updateCompilation(long compId, UpdateCompilationRequest request) {
-        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId)));
+        Compilation compilation = findCompilationById(compId);
 
         if (request.hasEvents()) {
             if (request.getEvents().isEmpty()) {
@@ -68,9 +67,8 @@ public class CompilationServiceImpl implements CompilationService {
     @Override
     @Transactional
     public void deleteCompilation(long compId) {
-        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId)));
-        compilationRepository.deleteById(compilation.getId());
+        checkCompilationExists(compId);
+        compilationRepository.deleteById(compId);
     }
 
     // -------- PUBLIC --------
@@ -84,8 +82,18 @@ public class CompilationServiceImpl implements CompilationService {
 
     @Override
     public CompilationDto getCompilationById(long compId) {
-        Compilation compilation = compilationRepository.findById(compId).orElseThrow(() ->
-                new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId)));
+        Compilation compilation = findCompilationById(compId);
         return CompilationMapper.toCompilationDto(compilation);
+    }
+
+    private void checkCompilationExists(long compId) {
+        if(!compilationRepository.existsById(compId)) {
+            throw new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId));
+        }
+    }
+
+    private Compilation findCompilationById(long compId) {
+        return compilationRepository.findById(compId).orElseThrow(() ->
+                new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId)));
     }
 }

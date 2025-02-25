@@ -7,6 +7,7 @@ import ru.practicum.ewm.category.CategoryMapper;
 import ru.practicum.ewm.event.dto.EventFullDto;
 import ru.practicum.ewm.event.dto.EventShortDto;
 import ru.practicum.ewm.event.dto.NewEventDto;
+import ru.practicum.ewm.location.LocationMapper;
 import ru.practicum.ewm.user.User;
 import ru.practicum.ewm.user.UserMapper;
 import java.util.Collections;
@@ -87,7 +88,7 @@ public class EventMapper {
                 .description(newEventDto.getDescription())
                 .title(newEventDto.getTitle())
                 .eventDate(newEventDto.getEventDate())
-                .location(newEventDto.getLocation())
+                .location(LocationMapper.toLocation(newEventDto.getLocation()))
                 .paid(newEventDto.getPaid())
                 .participantLimit(newEventDto.getParticipantLimit())
                 .requestModeration(newEventDto.isRequestModeration())

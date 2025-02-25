@@ -31,18 +31,19 @@ public class CategoryServiceImpl implements CategoryService {
     @Override
     @Transactional
     public void deleteCategory(long catId) {
-        Category category = checkCategoryExists(catId);
-
+        if (!categoryRepository.existsById(catId)) {
+            throw new NotFoundException(String.format("Категория с id = %d не найдена", catId));
+        }
         if (!eventRepository.findByCategoryId(catId).isEmpty()) {
             throw new DataIntegrityViolationException(String.format("Категория с id = %d связана с одним из событий", catId));
         }
-        categoryRepository.deleteById(category.getId());
+        categoryRepository.deleteById(catId);
     }
 
     @Override
     @Transactional
     public CategoryDto updateCategory(long catId, NewCategoryDto newCategoryInDto) {
-        Category category = checkCategoryExists(catId);
+        Category category = findCategoryById(catId);
         category.setName(newCategoryInDto.getName());
         return CategoryMapper.toCategoryDto(categoryRepository.save(category));
     }
@@ -57,11 +58,11 @@ public class CategoryServiceImpl implements CategoryService {
 
     @Override
     public CategoryDto getCategoryById(long catId) {
-        Category category = checkCategoryExists(catId);
+        Category category = findCategoryById(catId);
         return CategoryMapper.toCategoryDto(category);
     }
 
-    private Category checkCategoryExists(long catId) {
+    private Category findCategoryById(long catId) {
         return categoryRepository.findById(catId).orElseThrow(() ->
                 new NotFoundException(String.format("Категория с id = %d не найдена", catId)));
     }

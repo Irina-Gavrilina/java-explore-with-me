@@ -28,8 +28,8 @@ public class RequestServiceImpl implements RequestService {
 
     @Override
     public List<ParticipationRequestDto> getAllRequestsByUserId(long userId) {
-        User user = checkUserExists(userId);
-        List<Request> requests = requestRepository.findByRequesterId(user.getId());
+        checkUserExists(userId);
+        List<Request> requests = requestRepository.findByRequesterId(userId);
         return RequestMapper.toListOfParticipationRequestDto(requests);
     }
 
@@ -37,7 +37,8 @@ public class RequestServiceImpl implements RequestService {
     @Transactional
     public ParticipationRequestDto createRequest(long userId, long eventId) {
         log.info("Начало выполнения метода createRequest для userId = {}, eventId = {}", userId, eventId);
-        User user = checkUserExists(userId);
+        User user = userRepository.findById(userId).orElseThrow(() ->
+                new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
         Event event = eventRepository.findByIdWithInitiator(eventId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
@@ -87,7 +88,7 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto cancelRequest(long userId, long requestId) {
-        User user = checkUserExists(userId);
+        checkUserExists(userId);
         Request request = requestRepository.findById(requestId).orElseThrow(() ->
                 new NotFoundException(String.format("Запрос с id = %d не найден", requestId)));
 
@@ -114,8 +115,9 @@ public class RequestServiceImpl implements RequestService {
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 
-    private User checkUserExists(long userId) {
-        return userRepository.findById(userId).orElseThrow(() ->
-                new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
+    private void checkUserExists(long userId) {
+        if(!userRepository.existsById(userId)) {
+            throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
+        }
     }
 }

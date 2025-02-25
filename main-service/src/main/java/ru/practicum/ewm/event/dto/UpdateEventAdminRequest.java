@@ -1,11 +1,12 @@
 package ru.practicum.ewm.event.dto;
 
 import com.fasterxml.jackson.annotation.JsonFormat;
+import jakarta.validation.Valid;
 import jakarta.validation.constraints.*;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.event.EventStateAction;
-import ru.practicum.ewm.location.Location;
+import ru.practicum.ewm.location.dto.LocationDto;
 import java.time.LocalDateTime;
 import static ru.practicum.client.constants.Constants.DATE_FORMAT;
 
@@ -26,7 +27,8 @@ public class UpdateEventAdminRequest {
     @JsonFormat(pattern = DATE_FORMAT)
     @Future
     LocalDateTime eventDate;
-    Location location;
+    @Valid
+    LocationDto location;
     Boolean paid;
     @PositiveOrZero
     Integer participantLimit;

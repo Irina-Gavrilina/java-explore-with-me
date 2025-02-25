@@ -16,6 +16,7 @@ import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationConflict;
 import ru.practicum.ewm.exception.ValidationException;
 import ru.practicum.ewm.location.Location;
+import ru.practicum.ewm.location.LocationMapper;
 import ru.practicum.ewm.location.LocationRepository;
 import ru.practicum.ewm.request.Request;
 import ru.practicum.ewm.request.RequestMapper;
@@ -45,19 +46,17 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<EventShortDto> getAllEventsByUserId(long userId, int from, int size) {
-        User user = checkUserExists(userId);
+        checkUserExists(userId);
         Pageable pageable = PageRequest.of(from / size, size);
-        List<Event> events = eventRepository.findByInitiatorIdWithCategory(user.getId(), pageable);
+        List<Event> events = eventRepository.findByInitiatorIdWithCategory(userId, pageable);
         return EventMapper.toListOfEventShortDto(events);
     }
 
     @Override
     @Transactional
     public EventFullDto createEvent(long userId, NewEventDto newEventDto) {
-        User user = checkUserExists(userId);
-        Category category = categoryRepository.findById(newEventDto.getCategory()).orElseThrow(() ->
-                new NotFoundException(String.format("Категория с id = %d не найдена", newEventDto.getCategory())));
-
+        User user = findUserById(userId);
+        Category category = findCategoryById(newEventDto.getCategory());
         Duration duration = Duration.between(LocalDateTime.now(), newEventDto.getEventDate());
 
         if (duration.toHours() < 2) {
@@ -68,7 +67,7 @@ public class EventServiceImpl implements EventService {
         Event event = EventMapper.toEvent(newEventDto, category, user);
         event.setCreatedOn(LocalDateTime.now());
 
-        Location location = locationRepository.save(newEventDto.getLocation());
+        Location location = locationRepository.save(LocationMapper.toLocation(newEventDto.getLocation()));
         event.setLocation(location);
 
         event.setEventState(EventState.PENDING);
@@ -78,8 +77,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public EventFullDto getEventByIdAndOwnerId(long userId, long eventId) {
-        User user = checkUserExists(userId);
-        Event event = eventRepository.findByIdAndInitiatorIdWithCategoryAndLocation(eventId, user.getId()).orElseThrow(() ->
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorIdWithCategoryAndLocation(eventId, userId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
         return EventMapper.toEventFullDto(event);
     }
@@ -87,8 +86,8 @@ public class EventServiceImpl implements EventService {
     @Override
     @Transactional
     public EventFullDto updateEventByOwner(long userId, long eventId, UpdateEventUserRequest request) {
-        User user = checkUserExists(userId);
-        Event event = eventRepository.findByIdAndInitiatorIdWithCategoryAndLocation(eventId, user.getId()).orElseThrow(() ->
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorIdWithCategoryAndLocation(eventId, userId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
         if (event.getEventState().equals(EventState.PENDING)
@@ -108,17 +107,16 @@ public class EventServiceImpl implements EventService {
                 event.setAnnotation(request.getAnnotation());
             }
             if (request.hasCategory()) {
-                Category category = categoryRepository.findById(request.getCategory()).orElseThrow(() ->
-                new NotFoundException(String.format("Категория с id = %d не найдена", request.getCategory())));
-
+                Category category = findCategoryById(request.getCategory());
                 event.setCategory(category);
             }
             if (request.hasDescription()) {
                 event.setDescription(request.getDescription());
             }
             if (request.hasLocation()) {
-                if (!request.getLocation().equals(event.getLocation())) {
-                    Location location = locationRepository.save(request.getLocation());
+                Location requestLocation = LocationMapper.toLocation(request.getLocation());
+                if (!requestLocation.equals(event.getLocation())) {
+                    Location location = locationRepository.save(requestLocation);
                     event.setLocation(location);
                 }
             }
@@ -149,8 +147,8 @@ public class EventServiceImpl implements EventService {
 
     @Override
     public List<ParticipationRequestDto> getAllParticipationRequestsByEventOwnerId(long userId, long eventId) {
-        User user = checkUserExists(userId);
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, user.getId()).orElseThrow(() ->
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
         List<Request> requests = requestRepository.findByEventId(event.getId());
         return RequestMapper.toListOfParticipationRequestDto(requests);
@@ -170,8 +168,8 @@ public class EventServiceImpl implements EventService {
             );
         }
 
-        User user = checkUserExists(userId);
-        Event event = eventRepository.findByIdAndInitiatorId(eventId, user.getId()).orElseThrow(() ->
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
 
         long participantLimit = event.getParticipantLimit() == null ? 0 : event.getParticipantLimit();
@@ -262,10 +260,10 @@ public class EventServiceImpl implements EventService {
         List<Event> eventList;
 
         if (rangeStart != null && rangeEnd != null) {
-            eventList = eventRepository.findAllEventsForPublicByParams(text, categories, paid, rangeStart, rangeEnd,
+            eventList = eventRepository.findAllEventsForPublicByParams(searchText, categories, paid, rangeStart, rangeEnd,
                     onlyAvailable, pageable);
         } else {
-            eventList = eventRepository.findAllEventsForPublicByParamsWithoutDate(text, categories, paid,
+            eventList = eventRepository.findAllEventsForPublicByParamsWithoutDate(searchText, categories, paid,
                     LocalDateTime.now(), onlyAvailable, pageable);
         }
         return EventMapper.toListOfEventShortDto(eventList);
@@ -344,9 +342,7 @@ public class EventServiceImpl implements EventService {
             event.setAnnotation(request.getAnnotation());
         }
         if (request.hasCategory()) {
-            Category category = categoryRepository.findById(request.getCategory()).orElseThrow(() ->
-                    new NotFoundException(String.format("Категория с id = %d не найдена", request.getCategory())));
-
+            Category category = findCategoryById(request.getCategory());
             event.setCategory(category);
         }
         if (request.hasDescription()) {
@@ -362,8 +358,9 @@ public class EventServiceImpl implements EventService {
             event.setEventDate(request.getEventDate());
         }
         if (request.hasLocation()) {
-            if (!request.getLocation().equals(event.getLocation())) {
-                Location location = locationRepository.save(request.getLocation());
+            Location requestLocation = LocationMapper.toLocation(request.getLocation());
+            if (!requestLocation.equals(event.getLocation())) {
+                Location location = locationRepository.save(requestLocation);
                 event.setLocation(location);
             }
         }
@@ -404,8 +401,19 @@ public class EventServiceImpl implements EventService {
         return EventMapper.toEventFullDto(eventRepository.save(event));
     }
 
-    private User checkUserExists(long userId) {
+    private void checkUserExists(long userId) {
+        if(!userRepository.existsById(userId)) {
+            throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
+        }
+    }
+
+    private User findUserById(long userId) {
         return userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
+    }
+
+    private Category findCategoryById(long catId) {
+        return categoryRepository.findById(catId).orElseThrow(() ->
+                new NotFoundException(String.format("Категория с id = %d не найдена", catId)));
     }
 }
