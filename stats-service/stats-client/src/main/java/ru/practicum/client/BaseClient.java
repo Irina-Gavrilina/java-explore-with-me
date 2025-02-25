@@ -9,14 +9,15 @@ import java.util.List;
 import java.util.Map;
 
 public class BaseClient {
+
     protected final RestTemplate restTemplate;
 
     public BaseClient(RestTemplate restTemplate) {
         this.restTemplate = restTemplate;
     }
 
-    protected ResponseEntity<Object> get(final String path, @Nullable Map<String, Object> parameters) {
-        return makeAndSendRequest((HttpMethod.GET), path, parameters, null);
+    protected ResponseEntity<Object> get(String path, @Nullable Map<String, Object> parameters) {
+        return makeAndSendRequest(HttpMethod.GET, path, parameters, null);
     }
 
     protected <T> ResponseEntity<Object> post(String path, T body) {
