@@ -87,7 +87,7 @@ public class CompilationServiceImpl implements CompilationService {
     }
 
     private void checkCompilationExists(long compId) {
-        if(!compilationRepository.existsById(compId)) {
+        if (!compilationRepository.existsById(compId)) {
             throw new NotFoundException(String.format("Подборка событий с id = %d не найдена", compId));
         }
     }

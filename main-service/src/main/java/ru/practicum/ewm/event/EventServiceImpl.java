@@ -402,7 +402,7 @@ public class EventServiceImpl implements EventService {
     }
 
     private void checkUserExists(long userId) {
-        if(!userRepository.existsById(userId)) {
+        if (!userRepository.existsById(userId)) {
             throw new NotFoundException(String.format("Пользователь с id = %d не найден", userId));
         }
     }
