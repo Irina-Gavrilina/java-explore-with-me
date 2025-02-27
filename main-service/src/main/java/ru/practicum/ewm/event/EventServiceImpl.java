@@ -249,7 +249,7 @@ public class EventServiceImpl implements EventService {
         List<Comment> comments = commentRepository.findAllById(request.getCommentIds());
 
         if (comments.isEmpty()) {
-            return new EventCommentStatusUpdateResult (
+            return new EventCommentStatusUpdateResult(
                     new ArrayList<>(),
                     new ArrayList<>()
             );
