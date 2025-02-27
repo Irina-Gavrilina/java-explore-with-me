@@ -21,7 +21,8 @@ public class RequestPrivateController {
     @GetMapping
     @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllRequestsByUserId(@PathVariable("userId") long userId) {
-        log.info("Поступил запрос GET на получении информации о заявках пользователя c id = {} на участие в чужих событиях", userId);
+        log.info("Поступил запрос GET (RequestPrivateController) на получении информации " +
+                "о заявках пользователя c id = {} на участие в чужих событиях", userId);
         return requestService.getAllRequestsByUserId(userId);
     }
 
@@ -29,8 +30,8 @@ public class RequestPrivateController {
     @ResponseStatus(HttpStatus.CREATED)
     public ParticipationRequestDto createRequest(@PathVariable("userId") long userId,
                                                  @RequestParam(value = "eventId") long eventId) {
-        log.info("Получен запрос POST на создание запроса на участие в событии c id = {} от пользователя с id = {}",
-                eventId, userId);
+        log.info("Получен запрос POST (RequestPrivateController) на создание запроса на участие " +
+                        "в событии c id = {} от пользователя с id = {}", eventId, userId);
         return requestService.createRequest(userId, eventId);
     }
 
@@ -38,7 +39,8 @@ public class RequestPrivateController {
     @ResponseStatus(HttpStatus.OK)
     public ParticipationRequestDto cancelRequest(@PathVariable("userId") long userId,
                                                  @PathVariable("requestId") long requestId) {
-        log.info("Поступил запрос PATCH от пользователя с id = {} на отмену своего запроса на участие в событии с id = {},", userId, requestId);
+        log.info("Поступил запрос PATCH (RequestPrivateController) от пользователя с id = {} на отмену своего запроса " +
+                "на участие в событии с id = {},", userId, requestId);
         return requestService.cancelRequest(userId, requestId);
     }
 }

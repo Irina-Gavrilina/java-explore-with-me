@@ -22,6 +22,7 @@ public interface EventRepository extends JpaRepository<Event, Long> {
             SELECT e
             FROM Event AS e
             JOIN FETCH e.category AS c
+            JOIN FETCH e.initiator AS i
             JOIN FETCH e.location AS l
             WHERE e.id = :eventId
             AND e.initiator.id = :initiatorId

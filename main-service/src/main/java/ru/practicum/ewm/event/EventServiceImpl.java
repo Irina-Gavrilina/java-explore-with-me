@@ -11,6 +11,11 @@ import ru.practicum.CreateHitRequest;
 import ru.practicum.client.StatsClient;
 import ru.practicum.ewm.category.Category;
 import ru.practicum.ewm.category.CategoryRepository;
+import ru.practicum.ewm.comments.Comment;
+import ru.practicum.ewm.comments.CommentMapper;
+import ru.practicum.ewm.comments.CommentRepository;
+import ru.practicum.ewm.comments.CommentStatus;
+import ru.practicum.ewm.comments.dto.CommentDto;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.exception.NotFoundException;
 import ru.practicum.ewm.exception.ValidationConflict;
@@ -29,6 +34,8 @@ import java.time.Duration;
 import java.time.LocalDateTime;
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.stream.Collectors;
 
 @Service
 @Transactional(readOnly = true)
@@ -40,6 +47,7 @@ public class EventServiceImpl implements EventService {
     private final CategoryRepository categoryRepository;
     private final LocationRepository locationRepository;
     private final RequestRepository requestRepository;
+    private final CommentRepository commentRepository;
     private final StatsClient statsClient;
 
     // -------- PRIVATE --------
@@ -80,7 +88,8 @@ public class EventServiceImpl implements EventService {
         checkUserExists(userId);
         Event event = eventRepository.findByIdAndInitiatorIdWithCategoryAndLocation(eventId, userId).orElseThrow(() ->
                 new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
-        return EventMapper.toEventFullDto(event);
+        List<Comment> comments = commentRepository.findAllByEventIdAndStatus(event.getId());
+        return EventMapper.toEventFullDto(event, comments);
     }
 
     @Override
@@ -140,7 +149,9 @@ public class EventServiceImpl implements EventService {
             if (request.hasTitle()) {
                 event.setTitle(request.getTitle());
             }
-            return EventMapper.toEventFullDto(eventRepository.save(event));
+
+            List<Comment> comments = commentRepository.findAllByEventIdAndStatus(event.getId());
+            return EventMapper.toEventFullDto(event, comments);
         }
         throw new ValidationConflict("Событие не удовлетворяет правилам редактирования");
     }
@@ -156,9 +167,9 @@ public class EventServiceImpl implements EventService {
 
     @Override
     @Transactional
-    public EventRequestStatusUpdateResult changeEventStateOfParticipationRequest(long userId,
-                                                                                 long eventId,
-                                                                                 EventRequestStatusUpdateRequest request) {
+    public EventRequestStatusUpdateResult changeParticipationRequestStatus(long userId,
+                                                                           long eventId,
+                                                                           EventRequestStatusUpdateRequest request) {
         List<Request> requests = requestRepository.findAllById(request.getRequestIds());
 
         if (requests.isEmpty()) {
@@ -219,6 +230,68 @@ public class EventServiceImpl implements EventService {
         List<ParticipationRequestDto> rejectedRequestsDto = RequestMapper.toListOfParticipationRequestDto(rejectedRequests);
 
         return new EventRequestStatusUpdateResult(confirmedRequestsDto, rejectedRequestsDto);
+    }
+
+    @Override
+    public List<CommentDto> getAllCommentsByEventOwnerId(long userId, long eventId) {
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
+                new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
+        List<Comment> comments = commentRepository.findByEventId(eventId);
+        return CommentMapper.toListOfCommentDto(comments);
+    }
+
+    @Override
+    @Transactional
+    public EventCommentStatusUpdateResult changeCommentStatus(long userId,
+                                                              long eventId,
+                                                              EventCommentStatusUpdateRequest request) {
+        List<Comment> comments = commentRepository.findAllById(request.getCommentIds());
+
+        if (comments.isEmpty()) {
+            return new EventCommentStatusUpdateResult (
+                    new ArrayList<>(),
+                    new ArrayList<>()
+            );
+        }
+
+        checkUserExists(userId);
+        Event event = eventRepository.findByIdAndInitiatorId(eventId, userId).orElseThrow(() ->
+                new NotFoundException(String.format("Событие с id = %d не найдено", eventId)));
+
+        List<Comment> confirmedComments = new ArrayList<>();
+        List<Comment> rejectedComments = new ArrayList<>();
+
+        CommentStatus commentStatus = request.getStatus();
+
+        switch (commentStatus) {
+            case CONFIRMED -> {
+                for (Comment c : comments) {
+                    if (!c.getStatus().equals(CommentStatus.PENDING)) {
+                        throw new ValidationConflict("Текущий комментарий должен иметь статус PENDING");
+                    }
+                    c.setStatus(CommentStatus.CONFIRMED);
+                    commentRepository.save(c);
+                    confirmedComments.add(c);
+                }
+            }
+            case REJECTED -> {
+                for (Comment c : comments) {
+                    if (!c.getStatus().equals(CommentStatus.PENDING)) {
+                        throw new ValidationConflict("Текущий комментарий должен иметь статус PENDING");
+                    }
+                    c.setStatus(CommentStatus.REJECTED);
+                    commentRepository.save(c);
+                    rejectedComments.add(c);
+                }
+            }
+            default -> throw new ValidationConflict("Невалидный статус");
+        }
+
+        List<CommentDto> confirmedCommentsDt = CommentMapper.toListOfCommentDto(confirmedComments);
+        List<CommentDto> rejectedCommentsDt = CommentMapper.toListOfCommentDto(rejectedComments);
+
+        return new EventCommentStatusUpdateResult(confirmedCommentsDt, rejectedCommentsDt);
     }
 
     // -------- PUBLIC --------
@@ -292,7 +365,8 @@ public class EventServiceImpl implements EventService {
 
         long confirmedRequests = requestRepository.countByEventIdAndStatus(eventId, RequestStatus.CONFIRMED);
 
-        EventFullDto eventFullDto = EventMapper.toEventFullDto(event);
+        List<Comment> comments = commentRepository.findAllByEventIdAndStatus(event.getId());
+        EventFullDto eventFullDto = EventMapper.toEventFullDto(event, comments);
         eventFullDto.setConfirmedRequests(confirmedRequests);
         return eventFullDto;
     }
@@ -321,7 +395,13 @@ public class EventServiceImpl implements EventService {
         } else {
             eventList = eventRepository.findAllEventsForAdminByParams(users, states, categories, rangeStart, rangeEnd, pageable);
         }
-        return EventMapper.toListOfEventFullDto(eventList);
+        List<Long> eventIds = eventList.stream().map(Event::getId).toList();
+        List<Comment> comments = commentRepository.findAllByEventIdInWithEvents(eventIds);
+
+        Map<Long, List<Comment>> commentsByEventId = comments.stream()
+                .collect(Collectors.groupingBy(comment -> comment.getEvent().getId()));
+
+        return EventMapper.toListOfEventFullDto(eventList, commentsByEventId);
     }
 
     @Override
@@ -398,7 +478,8 @@ public class EventServiceImpl implements EventService {
         if (request.hasTitle()) {
             event.setTitle(request.getTitle());
         }
-        return EventMapper.toEventFullDto(eventRepository.save(event));
+        List<Comment> comments = commentRepository.findByEventId(event.getId());
+        return EventMapper.toEventFullDto(event, comments);
     }
 
     private void checkUserExists(long userId) {

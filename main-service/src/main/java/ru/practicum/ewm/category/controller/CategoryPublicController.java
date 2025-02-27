@@ -24,14 +24,14 @@ public class CategoryPublicController {
     @ResponseStatus(HttpStatus.OK)
     public List<CategoryDto> getCategories(@RequestParam(defaultValue = "0") @PositiveOrZero int from,
                                            @RequestParam(defaultValue = "10") @Positive int size) {
-        log.info("Поступил запрос GET на получение списка категорий");
+        log.info("Поступил запрос GET (CategoryPublicController) на получение списка категорий");
         return categoryService.getCategories(from, size);
     }
 
     @GetMapping("/{catId}")
     @ResponseStatus(HttpStatus.OK)
     public CategoryDto getCategoryById(@PathVariable("catId") long catId) {
-        log.info("Поступил запрос GET на получение категории с id={}", catId);
+        log.info("Поступил запрос GET (CategoryPublicController) на получение категории с id={}", catId);
         return categoryService.getCategoryById(catId);
     }
 }

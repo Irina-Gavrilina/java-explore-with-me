@@ -1,0 +1,999 @@
+{
+	"info": {
+		"_postman_id": "60f148cf-b361-47df-8eeb-72e1c70aa3fd",
+		"name": "feature",
+		"schema": "https://schema.getpostman.com/json/collection/v2.1.0/collection.json",
+		"_exporter_id": "40443261"
+	},
+	"item": [
+		{
+			"name": "Добавление нового пользователя 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 201\", () => {",
+							"  pm.response.to.have.status(201);",
+							"});",
+							"",
+							"const firstUser = pm.response.json();",
+							"pm.collectionVariables.set(\"firstUserId\", firstUser.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"user_1\",\"email\":\"user_1@hotmail.com\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление нового пользователя 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 201\", () => {",
+							"  pm.response.to.have.status(201);",
+							"});",
+							"",
+							"const secondUser = pm.response.json();",
+							"pm.collectionVariables.set(\"secondUserId\", secondUser.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"auth": {
+					"type": "noauth"
+				},
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"user_2\",\"email\":\"user_2@hotmail.com\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/users",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"users"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление новой категории",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 201\", () => {",
+							"  pm.response.to.have.status(201);",
+							"});",
+							"",
+							"const cat = pm.response.json();",
+							"pm.collectionVariables.set(\"categoryId\", cat.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"name\":\"category_1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/categories",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"categories"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление нового события 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Статус 201\", () => {",
+							"  pm.response.to.have.status(201);",
+							"});",
+							"",
+							"const event = pm.response.json();",
+							"pm.collectionVariables.set(\"eventId\", event.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"annotation\":\"Voluptas ex labore accusantium quod quasi sit provident.\",\"category\":1,\"description\":\"Eligendi corrupti incidunt dignissimos blanditiis rerum numquam beatae.\",\"eventDate\":\"2025-05-21 18:57:00\",\"location\":{\"lat\":-15.4197,\"lon\":32.3827},\"paid\":\"true\",\"participantLimit\":\"860\",\"requestModeration\":\"true\",\"title\":\"Minus consectetur et perspiciatis consequuntur nihil qui.\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/events",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"events"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление нового комментария от пользвателя 1 к событию 1 (текущий статус  события \"PENDING\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 404 (событие не найдено) или 409 (событие не опубликовано)",
+							"pm.test(\"Ожидаем 404 или 409\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([404, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"comment from user_1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/comments?eventId={{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение статуса (публикация/отклонение) события 1 (текущий статус события \"PENDING\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 200 (статус события успешно изменен) или 409 (событие уже имеет статус PUBLISHED)",
+							"pm.test(\"Ожидаем 200 или 409\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"stateAction\":\"PUBLISH_EVENT\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/admin/events/{{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"events",
+						"{{eventId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление нового комментария от пользователя 1 к событию 1 (текущий статус события \"PUBLISHED\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 201 (комментарий успешно добавлен), 400 (данные тела запроса не прошли валидацию) или 404 (событие не найдено)",
+							"pm.test(\"Ожидаем 201, 400 или 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([201, 400, 404]);",
+							"});",
+							"",
+							"const firstComment = pm.response.json();",
+							"pm.collectionVariables.set(\"firstCommentId\", firstComment.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"comment from user_1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/comments?eventId={{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Добавление нового комментария от пользователя 2 к событию 1 (текущий статус события \"PUBLISHED\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 201 (комментарий успешно добавлен), 400 (данные тела запроса не прошли валидацию) или 404 (событие не найдено)",
+							"pm.test(\"Ожидаем 201, 400 или 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([201, 400, 404]);",
+							"});",
+							"",
+							"const secondComment = pm.response.json();",
+							"pm.collectionVariables.set(\"secondCommentId\", secondComment.id);"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "POST",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"comment from user_2\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{secondUserId}}/comments?eventId={{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{secondUserId}}",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "eventId",
+							"value": "{{eventId}}"
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение комментария (автором), добавленного пользователем 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 200 (комментарий успешно обновлен), 400 (данные тела запроса не прошли валидацию), 404 (комментарий не найден), 409 (с момента создания комментария прошло более часа)",
+							"pm.test(\"Ожидаем 200, 400, 404 или 409\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200, 400, 404, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"updated comment from user_1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/comments/{{firstCommentId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"comments",
+						"{{firstCommentId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение комментария (не автором), добавленного пользователем 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// 404 (комментарий не найден)",
+							"pm.test(\"Ожидаем 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"text\":\"updated comment from user_1\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{secondUserId}}/comments/{{firstCommentId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{secondUserId}}",
+						"comments",
+						"{{firstCommentId}}"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение статуса (подтвержден/отклонен) комментария от пользователя 1 (текущий статус комментария PENDING\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 200 (статус комментария успешно обновлен) или 404 (пользователь/событие не были найдены)",
+							"pm.test(\"Ожидаем 200 или 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200, 404]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"commentIds\":[1],\"status\":\"CONFIRMED\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/events/{{eventId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"events",
+						"{{eventId}}",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Изменение статуса (подтвержден/отклонен) комментария от пользователя 1 (текущий статус комментария \"CONFIRMED\")",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 404 (пользователь/событие не были найдены) или 409 (комментарий имеет статус, отличный от PENDING)",
+							"pm.test(\"Ожидаем 404 или 409\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([404, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "{\"commentIds\":[1],\"status\":\"CONFIRMED\"}",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/events/{{eventId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"events",
+						"{{eventId}}",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Отмена комментария (автором), добавленного пользователем 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 200 (комментарий успешно отменен), 404 (комментарий не был найден) или 409 (если статус комментария уже CANCELED или REJECTED)",
+							"pm.test(\"Ожидаем 200, 404 или 409\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200, 404, 409]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{secondUserId}}/comments/{{secondCommentId}}/cancel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{secondUserId}}",
+						"comments",
+						"{{secondCommentId}}",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Отмена комментария (не автором), добавленного пользователем 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 404 (отменить комментарий пытается не его автор)",
+							"pm.test(\"Ожидаем 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "PATCH",
+				"header": [],
+				"body": {
+					"mode": "raw",
+					"raw": "",
+					"options": {
+						"raw": {
+							"language": "json"
+						}
+					}
+				},
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/comments/{{secondCommentId}}/cancel",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"comments",
+						"{{secondCommentId}}",
+						"cancel"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев, добавленных пользователем 1",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ожидаем 200\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев, добавленных пользователем 2",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ожидаем 200\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{secondUserId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{secondUserId}}",
+						"comments"
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев (владельцем события) к событию 1 (приватный доступ)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ожидаем 200\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{firstUserId}}/events/{{eventId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{firstUserId}}",
+						"events",
+						"{{eventId}}",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев (не владельцем события) к событию 1 (приватный доступ)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 404 (получить список всех комментариев к событию пытается не его владелец)",
+							"pm.test(\"Ожидаем 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([404]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/users/{{secondUserId}}/events/{{eventId}}/comments",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"users",
+						"{{secondUserId}}",
+						"events",
+						"{{eventId}}",
+						"comments"
+					],
+					"query": [
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев с возможностью фильтрации к событию 1 (public)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ожидаем 200\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/comments/{{eventId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"comments",
+						"{{eventId}}"
+					],
+					"query": [
+						{
+							"key": "from",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": "",
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Получение комментариев с возможностью фильтрации к событию 1 (admin)",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"pm.test(\"Ожидаем 200\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([200]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "GET",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/admin/comments/search",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"comments",
+						"search"
+					],
+					"query": [
+						{
+							"key": "text",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "from",
+							"value": "",
+							"disabled": true
+						},
+						{
+							"key": "size",
+							"value": null,
+							"disabled": true
+						}
+					]
+				}
+			},
+			"response": []
+		},
+		{
+			"name": "Удаление комментария администратором",
+			"event": [
+				{
+					"listen": "test",
+					"script": {
+						"exec": [
+							"// Ожидаем 204 (комментарий успешно удален) или 404 (комментарий не найден)",
+							"pm.test(\"Ожидаем 204 или 404\", () => {",
+							"  pm.expect(pm.response.code).to.be.oneOf([204, 404]);",
+							"});"
+						],
+						"type": "text/javascript",
+						"packages": {}
+					}
+				}
+			],
+			"request": {
+				"method": "DELETE",
+				"header": [],
+				"url": {
+					"raw": "{{baseUrl}}/admin/comments/{{firstCommentId}}",
+					"host": [
+						"{{baseUrl}}"
+					],
+					"path": [
+						"admin",
+						"comments",
+						"{{firstCommentId}}"
+					]
+				}
+			},
+			"response": []
+		}
+	],
+	"event": [
+		{
+			"listen": "prerequest",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		},
+		{
+			"listen": "test",
+			"script": {
+				"type": "text/javascript",
+				"packages": {},
+				"exec": [
+					""
+				]
+			}
+		}
+	],
+	"variable": [
+		{
+			"key": "baseUrl",
+			"value": "http://localhost:8080",
+			"type": "string"
+		},
+		{
+			"key": "firstUserId",
+			"value": "firstUser"
+		},
+		{
+			"key": "secondUserId",
+			"value": "secondUser"
+		},
+		{
+			"key": "categoryId",
+			"value": "category"
+		},
+		{
+			"key": "eventId",
+			"value": "event"
+		},
+		{
+			"key": "firstCommentId",
+			"value": "firstComment"
+		},
+		{
+			"key": "secondCommentId",
+			"value": "secondComment"
+		}
+	]
+}
