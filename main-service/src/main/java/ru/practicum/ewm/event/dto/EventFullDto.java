@@ -4,10 +4,12 @@ import com.fasterxml.jackson.annotation.JsonFormat;
 import lombok.*;
 import lombok.experimental.FieldDefaults;
 import ru.practicum.ewm.category.dto.CategoryDto;
+import ru.practicum.ewm.comments.dto.CommentDto;
 import ru.practicum.ewm.event.EventState;
 import ru.practicum.ewm.location.Location;
 import ru.practicum.ewm.user.dto.UserShortDto;
 import java.time.LocalDateTime;
+import java.util.List;
 import static ru.practicum.client.constants.Constants.DATE_FORMAT;
 
 @Getter
@@ -38,6 +40,7 @@ public class EventFullDto {
     EventState state;
     String title;
     Long views;
+    List<CommentDto> comments;
 
     @Override
     public boolean equals(Object o) {

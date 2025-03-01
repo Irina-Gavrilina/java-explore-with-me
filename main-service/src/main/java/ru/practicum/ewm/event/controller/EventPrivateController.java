@@ -8,6 +8,7 @@ import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
 import org.springframework.validation.annotation.Validated;
 import org.springframework.web.bind.annotation.*;
+import ru.practicum.ewm.comments.dto.CommentDto;
 import ru.practicum.ewm.event.EventService;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
@@ -64,18 +65,39 @@ public class EventPrivateController {
     @ResponseStatus(HttpStatus.OK)
     public List<ParticipationRequestDto> getAllParticipationRequestsByEventOwnerId(@PathVariable("userId") long userId,
                                                                                    @PathVariable("eventId") long eventId) {
-        log.info("Поступил запрос GET (EventPrivateController) на получении информации о всех запросах об участии " +
-                        "в событии текущего пользователя с id= {}", userId);
+        log.info("Поступил запрос GET (EventPrivateController) на получении информации обо всех запросах об участии в " +
+                "событии с id = {}, владельцем которого является пользователь с id= {}", eventId, userId);
         return eventService.getAllParticipationRequestsByEventOwnerId(userId, eventId);
     }
 
     @PatchMapping("/{eventId}/requests")
     @ResponseStatus(HttpStatus.OK)
-    public EventRequestStatusUpdateResult changeEventStateOfParticipationRequest(@PathVariable long userId,
-                                                                                 @PathVariable long eventId,
-                                                                                 @RequestBody
-                                                                                 @Valid EventRequestStatusUpdateRequest request) {
-        log.info("Получен запрос PATCH (EventPrivateController) на изменение статуса события c id = {}", eventId);
-        return eventService.changeEventStateOfParticipationRequest(userId, eventId, request);
+    public EventRequestStatusUpdateResult changeParticipationRequestStatus(@PathVariable long userId,
+                                                                           @PathVariable long eventId,
+                                                                           @RequestBody
+                                                                           @Valid EventRequestStatusUpdateRequest request) {
+        log.info("Получен запрос PATCH (EventPrivateController) на изменение статуса запроса на участие в событии " +
+                "c id = {}", eventId);
+        return eventService.changeParticipationRequestStatus(userId, eventId, request);
+    }
+
+    @GetMapping("/{eventId}/comments")
+    @ResponseStatus(HttpStatus.OK)
+    public List<CommentDto> getAllCommentsByEventOwnerId(@PathVariable("userId") long userId,
+                                                         @PathVariable("eventId") long eventId) {
+        log.info("Поступил запрос GET (EventPrivateController) на получении информации обо всех комментариях события " +
+                "с id = {}, владельцем которого является пользователь с id= {}", eventId, userId);
+        return eventService.getAllCommentsByEventOwnerId(userId, eventId);
+    }
+
+    @PatchMapping("/{eventId}/comments")
+    @ResponseStatus(HttpStatus.OK)
+    public EventCommentStatusUpdateResult changeCommentStatus(@PathVariable long userId,
+                                                              @PathVariable long eventId,
+                                                              @RequestBody
+                                                              @Valid EventCommentStatusUpdateRequest request) {
+        log.info("Получен запрос PATCH (EventPrivateController) на изменение статуса комментария события " +
+                "c id = {}", eventId);
+        return eventService.changeCommentStatus(userId, eventId, request);
     }
 }

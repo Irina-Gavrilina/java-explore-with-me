@@ -36,7 +36,6 @@ public class RequestServiceImpl implements RequestService {
     @Override
     @Transactional
     public ParticipationRequestDto createRequest(long userId, long eventId) {
-        log.info("Начало выполнения метода createRequest для userId = {}, eventId = {}", userId, eventId);
         User user = userRepository.findById(userId).orElseThrow(() ->
                 new NotFoundException(String.format("Пользователь с id = %d не найден", userId)));
         Event event = eventRepository.findByIdWithInitiator(eventId).orElseThrow(() ->
@@ -81,7 +80,6 @@ public class RequestServiceImpl implements RequestService {
             event.setConfirmedRequests(confirmedRequests + 1);
             eventRepository.save(event);
         }
-        log.info("Завершение выполнения метода createRequest для userId = {}, eventId = {}", userId, eventId);
         return RequestMapper.toParticipationRequestDto(requestRepository.save(request));
     }
 

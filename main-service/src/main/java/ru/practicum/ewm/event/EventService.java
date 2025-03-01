@@ -1,6 +1,7 @@
 package ru.practicum.ewm.event;
 
 import jakarta.servlet.http.HttpServletRequest;
+import ru.practicum.ewm.comments.dto.CommentDto;
 import ru.practicum.ewm.event.dto.*;
 import ru.practicum.ewm.request.dto.ParticipationRequestDto;
 import java.time.LocalDateTime;
@@ -18,9 +19,15 @@ public interface EventService {
 
     List<ParticipationRequestDto> getAllParticipationRequestsByEventOwnerId(long userId, long eventId);
 
-    EventRequestStatusUpdateResult changeEventStateOfParticipationRequest(long userId,
-                                                                          long eventId,
-                                                                          EventRequestStatusUpdateRequest request);
+    EventRequestStatusUpdateResult changeParticipationRequestStatus(long userId,
+                                                                    long eventId,
+                                                                    EventRequestStatusUpdateRequest request);
+
+    List<CommentDto> getAllCommentsByEventOwnerId(long userId, long eventId);
+
+    EventCommentStatusUpdateResult changeCommentStatus(long userId,
+                                                       long eventId,
+                                                       EventCommentStatusUpdateRequest request);
 
     List<EventShortDto> getPublicEventsWithParams(String text,
                                                   List<Integer> categories,
